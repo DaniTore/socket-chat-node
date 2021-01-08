@@ -63,3 +63,8 @@ socket.on('listaPersonasConectadas', function(personasConectadas) {
     console.log('Servidor: Lista de usuarios:', personasConectadas);
 
 });
+
+//Mensajger privado
+socket.on('mensajePrivado', function(mensaje) {
+    console.log('Mensaje Privado', mensaje);
+})
