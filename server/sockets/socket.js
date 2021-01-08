@@ -8,7 +8,6 @@ io.on('connection', (client) => {
 
     // escucha el emit del front 'entradaChat'
     client.on('entrarChat', (datosUsuario, callback) => {
-        console.log(datosUsuario);
 
         if (!datosUsuario.nombre || !datosUsuario.sala) {
             return callback({
@@ -19,12 +18,12 @@ io.on('connection', (client) => {
 
         client.join(datosUsuario.sala)
 
-        let personasConectadas = usuarios.agregarPersonaAlChat(client.id, datosUsuario.nombre, datosUsuario.sala);
+        usuarios.agregarPersonaAlChat(client.id, datosUsuario.nombre, datosUsuario.sala);
 
-        // evento hacía front comunica todas las personas conectadas al chat
-        client.broadcast.emit('listaPersonasConectadas', usuarios.getTodasLasPersonas());
+        // evento hacía front comunica la conexion a todos los user de la misama sala
+        client.broadcast.to(datosUsuario.sala).emit('listaPersonasConectadas', usuarios.getPersonasPorSala(datosUsuario.sala));
 
-        callback(personasConectadas)
+        callback(usuarios.getPersonasPorSala(datosUsuario.sala))
     })
 
     //viene el mensaje de un usuario
@@ -35,7 +34,7 @@ io.on('connection', (client) => {
 
         let mensaje = crearMensaje(persona.nombre, data.mensaje);
 
-        client.broadcast.emit('escucharMensaje', mensaje)
+        client.broadcast.to(persona.sala).emit('escucharMensaje', mensaje)
     })
 
 
@@ -44,9 +43,9 @@ io.on('connection', (client) => {
         // devuelve la persona borrada
         let personaborrada = usuarios.borrarPersonaEnChat(client.id);
 
-        client.broadcast.emit('abandonaChat', crearMensaje('Administrador', `${personaborrada.nombre} abandonó el chat`));
+        client.broadcast.to(personaborrada.sala).emit('abandonaChat', crearMensaje('Administrador', `${personaborrada.nombre} abandonó el chat`));
 
-        client.broadcast.emit('listaPersonasConectadas', usuarios.getTodasLasPersonas());
+        client.broadcast.to(personaborrada.sala).emit('listaPersonasConectadas', usuarios.getPersonasPorSala(personaborrada.sala));
 
     });
 

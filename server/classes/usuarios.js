@@ -26,7 +26,8 @@ class Usuarios {
     }
 
     getPersonasPorSala(sala) {
-        // ...
+        let personasEnSala = this.personasEnChat.filter(pesona => pesona.sala === sala);
+        return personasEnSala;
     }
 
     borrarPersonaEnChat(id) {
