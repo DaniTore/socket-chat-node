@@ -7,16 +7,19 @@ const usuarios = new Usuarios();
 io.on('connection', (client) => {
 
     // escucha el emit del front 'entradaChat'
-    client.on('entrarChat', (usuario, callback) => {
+    client.on('entrarChat', (datosUsuario, callback) => {
+        console.log(datosUsuario);
 
-        if (!usuario.nombre) {
+        if (!datosUsuario.nombre || !datosUsuario.sala) {
             return callback({
                 error: true,
-                mensaje: 'El nombre es necesario'
+                mensaje: 'El nombre/sala es necesario'
             });
         }
 
-        let personasConectadas = usuarios.agregarPersonaAlChat(client.id, usuario.nombre);
+        client.join(datosUsuario.sala)
+
+        let personasConectadas = usuarios.agregarPersonaAlChat(client.id, datosUsuario.nombre, datosUsuario.sala);
 
         // evento hacía front comunica todas las personas conectadas al chat
         client.broadcast.emit('listaPersonasConectadas', usuarios.getTodasLasPersonas());

@@ -4,9 +4,9 @@ class Usuarios {
         this.personasEnChat = []; // en el chat
     }
 
-    agregarPersonaAlChat(id, nombre) {
+    agregarPersonaAlChat(id, nombre, sala) {
 
-        let persona = { id, nombre } // creo la persona
+        let persona = { id, nombre, sala } // creo la persona
 
         this.personasEnChat.push(persona); // agrego la persona al array de personas
 
