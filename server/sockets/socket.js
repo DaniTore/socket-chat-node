@@ -7,21 +7,23 @@ const usuarios = new Usuarios();
 io.on('connection', (client) => {
 
     // escucha el emit del front 'entradaChat'
-    client.on('entrarChat', (usuario, callback) => {
+    client.on('entrarChat', (datosUsuario, callback) => {
 
-        if (!usuario.nombre) {
+        if (!datosUsuario.nombre || !datosUsuario.sala) {
             return callback({
                 error: true,
-                mensaje: 'El nombre es necesario'
+                mensaje: 'El nombre/sala es necesario'
             });
         }
 
-        let personasConectadas = usuarios.agregarPersonaAlChat(client.id, usuario.nombre);
+        client.join(datosUsuario.sala)
 
-        // evento hacía front comunica todas las personas conectadas al chat
-        client.broadcast.emit('listaPersonasConectadas', usuarios.getTodasLasPersonas());
+        usuarios.agregarPersonaAlChat(client.id, datosUsuario.nombre, datosUsuario.sala);
 
-        callback(personasConectadas)
+        // evento hacía front comunica la conexion a todos los user de la misama sala
+        client.broadcast.to(datosUsuario.sala).emit('listaPersonasConectadas', usuarios.getPersonasPorSala(datosUsuario.sala));
+
+        callback(usuarios.getPersonasPorSala(datosUsuario.sala))
     })
 
     //viene el mensaje de un usuario
@@ -32,7 +34,7 @@ io.on('connection', (client) => {
 
         let mensaje = crearMensaje(persona.nombre, data.mensaje);
 
-        client.broadcast.emit('escucharMensaje', mensaje)
+        client.broadcast.to(persona.sala).emit('escucharMensaje', mensaje)
     })
 
 
@@ -41,9 +43,9 @@ io.on('connection', (client) => {
         // devuelve la persona borrada
         let personaborrada = usuarios.borrarPersonaEnChat(client.id);
 
-        client.broadcast.emit('abandonaChat', crearMensaje('Administrador', `${personaborrada.nombre} abandonó el chat`));
+        client.broadcast.to(personaborrada.sala).emit('abandonaChat', crearMensaje('Administrador', `${personaborrada.nombre} abandonó el chat`));
 
-        client.broadcast.emit('listaPersonasConectadas', usuarios.getTodasLasPersonas());
+        client.broadcast.to(personaborrada.sala).emit('listaPersonasConectadas', usuarios.getPersonasPorSala(personaborrada.sala));
 
     });
 

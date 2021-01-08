@@ -3,13 +3,14 @@ var socket = io();
 var urlParams = new URLSearchParams(window.location.search);
 
 //Si no hay nombre en url redirige al index
-if (!urlParams.has('nombre')) {
+if (!urlParams.has('nombre') || !urlParams.has('sala')) {
     window.location = 'index.html'
-    throw new Error('El nombre es necesario')
+    throw new Error('El nombre  y sala son necesario')
 }
 
 var usuraio = {
-    nombre: urlParams.get('nombre')
+    nombre: urlParams.get('nombre'),
+    sala: urlParams.get('sala')
 }
 
 socket.on('connect', function() {
