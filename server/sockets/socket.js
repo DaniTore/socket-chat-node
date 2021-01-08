@@ -1,6 +1,6 @@
 const { io } = require('../server');
-
 const { Usuarios } = require('../classes/usuarios');
+const { crearMensaje } = require('../utilidades/utilidades');
 
 const usuarios = new Usuarios();
 
@@ -24,15 +24,24 @@ io.on('connection', (client) => {
         callback(personasConectadas)
     })
 
+    //viene el mensaje de un usuario
+    client.on('crearMensaje', (data) => {
+
+        //quiero todos los datos del user que manda el mensaje, que estan en client
+        let persona = usuarios.getPersona(client.id)
+
+        let mensaje = crearMensaje(persona.nombre, data.mensaje);
+
+        client.broadcast.emit('escucharMensaje', mensaje)
+    })
+
+
     client.on('disconnect', () => {
 
         // devuelve la persona borrada
         let personaborrada = usuarios.borrarPersonaEnChat(client.id);
 
-        client.broadcast.emit('abandonaChat', {
-            usuario: 'Administrador',
-            mensaje: `${personaborrada.nombre} abandonó el chat`
-        });
+        client.broadcast.emit('abandonaChat', crearMensaje('Administrador', `${personaborrada.nombre} abandonó el chat`));
 
         client.broadcast.emit('listaPersonasConectadas', usuarios.getTodasLasPersonas());
 
