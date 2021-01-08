@@ -23,6 +23,7 @@ io.on('connection', (client) => {
         // evento hacía front comunica la conexion a todos los user de la misama sala
         client.broadcast.to(datosUsuario.sala).emit('listaPersonasConectadas', usuarios.getPersonasPorSala(datosUsuario.sala));
 
+        //este callback lo usa connection, en el emit. que tiene un calback
         callback(usuarios.getPersonasPorSala(datosUsuario.sala))
     })
 
