@@ -18,7 +18,10 @@ socket.on('connect', function() {
 
     // emite el usuario cogido por params y espera un calback del servidor
     socket.emit('entrarChat', usuraio, function(resp) {
-        console.log('Usuarios conectados', resp)
+        console.log('Usuarios conectados', resp);
+        renderizarUsuarios(resp);
+
+
     });
 });
 
@@ -62,6 +65,8 @@ socket.on('escucharMensaje', function(mensaje) {
 socket.on('listaPersonasConectadas', function(personasConectadas) {
 
     console.log('Servidor: Lista de usuarios:', personasConectadas);
+
+    renderizarUsuarios(personasConectadas);
 
 });
 
